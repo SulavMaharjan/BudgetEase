@@ -1,4 +1,4 @@
-﻿@page "/login"
+﻿@page "/"
 
 @using BudgetEasee.Models
 @using BudgetEasee.Services
@@ -19,6 +19,7 @@
         <input type="password" class="form-control" id="exampleInputPassword1" @bind="Password">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
+    <a href="/signup">dont have an account?Signup</a>
 </form>
 
 @code {
@@ -36,7 +37,7 @@
         else
         {
             loginFailed = false;
-            NavigationManager.NavigateTo("/"); // Redirect to home page
+            NavigationManager.NavigateTo("/home"); // Redirect to home page
         }
     }
 }
