@@ -1,0 +1,80 @@
+﻿@page "/transaction-history"
+
+@using BudgetEasee.Models
+@using BudgetEasee.Services
+@inject TransactionService TransactionService
+@inject NavigationManager NavigationManager
+
+<h3>Transaction History</h3>
+
+@if (transactions == null)
+{ 
+    <p>Loading transactions...</p>
+}
+else if (transactions.Count == 0)
+{
+    <p>No transactions found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Amount</th>
+                <th>Transaction Type</th>
+                <th>Tag</th>
+                <th>Remarks</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in transactions)
+            {
+                <tr>
+                    <td>@transaction.Source</td>
+                    <td>@transaction.Amount</td>
+                    <td>@transaction.TransactionType</td>
+                    <td>@transaction.Tag</td>
+                    <td>@transaction.Remarks</td>
+                    <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="() => DeleteTransaction(transaction.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<button class="btn btn-primary" @onclick="LoadTransactions">Refresh Transactions</button>
+
+@code {
+    private List<BudgetEasee.Models.Transaction> transactions; // Ensure this is the correct type
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTransactions();
+    }
+
+    private async Task LoadTransactions()
+    {
+        transactions = await TransactionService.GetTransactionsAsync();
+        StateHasChanged(); // Refresh the page to reflect updated data
+    }
+    private async Task DeleteTransaction(int transactionId)
+    {
+        bool isDeleted = await TransactionService.DeleteTransactionAsync(transactionId);
+
+        if (isDeleted)
+        {
+            transactions = transactions.Where(t => t.Id != transactionId).ToList(); // Remove deleted transaction from the list
+            StateHasChanged(); // Refresh the page
+        }
+        else
+        {
+            // Optionally handle error when transaction is not found or deletion fails
+            Console.WriteLine("Error deleting transaction.");
+        }
+    }
+}

@@ -1,0 +1,80 @@
+﻿@page "/transaction"
+
+@using BudgetEasee.Models
+@using BudgetEasee.Services
+@inject TransactionService TransactionService
+@inject NavigationManager NavigationManager
+
+<h3>Add Transaction</h3>
+
+@if (transactionFailed)
+{
+    <div class="alert alert-danger" role="alert">
+        There was an error adding the transaction. Please try again.
+    </div>
+}
+
+<form @onsubmit="HandleAddTransaction">
+    <div class="mb-3">
+        <label class="form-label">Source</label>
+        <input class="form-control" @bind="Source" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Amount</label>
+        <input type="number" class="form-control" @bind="Amount" step="0.01" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Transaction Type</label>
+        <select class="form-control" @bind="TransactionType">
+            <option value="Debit">Debit</option>
+            <option value="Credit">Credit</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Tag</label>
+        <input class="form-control" @bind="Tag" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Remarks</label>
+        <input class="form-control" @bind="Remarks" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-control" @bind="Date" />
+    </div>
+    <button type="submit" class="btn btn-primary">Add Transaction</button>
+</form>
+
+@code {
+    private string Source { get; set; } = string.Empty;
+    private decimal Amount { get; set; } = 0;
+    private TransactionType TransactionType { get; set; } = TransactionType.Debit;
+    private string Tag { get; set; } = string.Empty;
+    private string Remarks { get; set; } = string.Empty;
+    private DateTime Date { get; set; } = DateTime.Now;
+
+    private bool transactionFailed;
+
+    private async Task HandleAddTransaction()
+    {
+        try
+        {
+            var success = await TransactionService.AddTransactionAsync(Source, Amount, TransactionType, Tag, Remarks);
+            if (!success)
+            {
+                transactionFailed = true;
+            }
+            else
+            {
+                transactionFailed = false;
+                // Navigate to the transaction history page to reload the transactions
+                NavigationManager.NavigateTo("/transaction-history");
+            }
+        }
+        catch (Exception ex)
+        {
+            transactionFailed = true;
+            Console.Error.WriteLine(ex.Message); // Log the exception for debugging
+        }
+    }
+}

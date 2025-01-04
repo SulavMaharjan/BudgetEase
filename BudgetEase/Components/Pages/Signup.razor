@@ -1,0 +1,43 @@
+﻿@using BudgetEasee.Models;
+@using BudgetEasee.Services;
+@page "/signup"
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+
+
+<h3>Signup</h3>
+
+
+<form @onsubmit="HandleSignup">
+    <div class="mb-3">
+        <label class="form-label">username</label>
+        <input class="form-control" @bind="user.Username">
+        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Password</label>
+        <input type="password" class="form-control" id="exampleInputPassword1" @bind="user.PasswordHash">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+    
+</form>
+
+@code {
+    private User user = new User();
+    private bool signupFailed;
+
+    private async Task HandleSignup()
+    {
+        var success = await UserService.RegisterUserAsync(user.Username, user.PasswordHash);
+        if (!success)
+        {
+            signupFailed = true;
+        }
+        else
+        {
+            signupFailed = false;
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+}

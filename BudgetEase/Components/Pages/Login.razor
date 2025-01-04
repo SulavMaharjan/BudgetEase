@@ -1,0 +1,42 @@
+﻿@page "/login"
+
+@using BudgetEasee.Models
+@using BudgetEasee.Services
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+
+<h3>Login</h3>
+
+
+<form @onsubmit="HandleLogin">
+    <div class="mb-3">
+        <label class="form-label">username</label>
+        <input class="form-control" @bind="Username">
+        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Password</label>
+        <input type="password" class="form-control" id="exampleInputPassword1" @bind="Password">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@code {
+    private string Username { get; set; } = string.Empty;
+    private string Password { get; set; } = string.Empty;
+    private bool loginFailed;
+
+    private async Task HandleLogin()
+    {
+        var success = await UserService.LoginUserAsync(Username, Password);
+        if (!success)
+        {
+            loginFailed = true;
+        }
+        else
+        {
+            loginFailed = false;
+            NavigationManager.NavigateTo("/"); // Redirect to home page
+        }
+    }
+}
