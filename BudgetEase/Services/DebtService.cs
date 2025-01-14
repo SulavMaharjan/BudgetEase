@@ -69,7 +69,7 @@ namespace BudgetEasee.Services
                 await _context.SaveChangesAsync();
 
                 // After deleting, invalidate the in-memory cache and reload data
-                _inMemoryDebts = null;
+                _inMemoryDebts = null; 
                 return true;
             }
             catch (Exception ex)
