@@ -13,7 +13,11 @@
         There was an error adding the transaction. Please try again.
     </div>
 }
-
+<div>
+    <button class="btn btn-primary">
+        <a href="/transactionHistory" class="text-light">View Transaction History</a>
+    </button>
+</div>
 <form @onsubmit="HandleAddTransaction">
     <div class="mb-3">
         <label class="form-label">Source</label>
@@ -68,7 +72,7 @@
             {
                 transactionFailed = false;
                 // Navigate to the transaction history page to reload the transactions
-                NavigationManager.NavigateTo("/transaction-history");
+                NavigationManager.NavigateTo("/transactionHistory");
             }
         }
         catch (Exception ex)

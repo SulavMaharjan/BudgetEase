@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using BudgetEasee.Data;
 using BudgetEasee.Services;
@@ -31,11 +30,11 @@ namespace BudgetEase
             // Register Services
             builder.Services.AddSingleton<UserService>();
             builder.Services.AddScoped<TransactionService>();
-
+            builder.Services.AddSingleton<DebtService>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

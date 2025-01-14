@@ -1,0 +1,140 @@
+﻿@page "/addDebt"
+
+@using BudgetEasee.Models
+@using BudgetEasee.Services
+@inject DebtService DebtService
+@inject NavigationManager NavigationManager
+
+<h3>Add Debt</h3>
+
+@if (debtFailed)
+{
+    <div class="alert alert-danger" role="alert">
+        There was an error adding the debt. Please try again.
+    </div>
+}
+
+<form @onsubmit="HandleAddDebt">
+    <div class="mb-3">
+        <label class="form-label">Source of Debt</label>
+        <input class="form-control" @bind="Source" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Amount</label>
+        <input type="number" class="form-control" @bind="Amount" step="0.01" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Debt Due Date</label>
+        <input type="date" class="form-control" @bind="DebtDueDate" />
+    </div>
+    <button type="submit" class="btn btn-primary">Add Debt</button>
+</form>
+
+<h4>Debt History</h4>
+
+@if (debts == null)
+{
+    <p>Loading debt history...</p>
+}
+else if (debts.Count == 0)
+{
+    <p>No debts found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Source of Debt</th>
+                <th>Amount</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var debt in debts)
+            {
+                <tr>
+                    <td>@debt.Source</td>
+                    <td>@debt.Amount</td>
+                    <td>@debt.DebtDueDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="() => HandleDeleteDebt(debt.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private string Source { get; set; } = string.Empty;
+    private decimal Amount { get; set; } = 0;
+    private DateTime DebtDueDate { get; set; } = DateTime.Now;
+    private bool debtFailed;
+    private List<Debt> debts = new List<Debt>(); // Initialize with an empty list
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDebtHistory();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadDebtHistory();
+        }
+    }
+
+    private async Task HandleAddDebt()
+    {
+        try
+        {
+            var success = await DebtService.AddDebtAsync(Source, Amount, DebtDueDate);
+            if (!success)
+            {
+                debtFailed = true;
+            }
+            else
+            {
+                debtFailed = false;
+                // After adding debt, trigger a reload of the debt history
+                await LoadDebtHistory();
+            }
+        }
+        catch (Exception ex)
+        {
+            debtFailed = true;
+            Console.Error.WriteLine($"Error adding debt: {ex.Message}");  // Log the error for debugging
+        }
+    }
+
+    private async Task HandleDeleteDebt(int debtId)
+    {
+        try
+        {
+            var success = await DebtService.DeleteDebtAsync(debtId);
+            if (success)
+            {
+                // Reload the debt history after deletion
+                await LoadDebtHistory();
+            }
+            else
+            {
+                Console.Error.WriteLine("Failed to delete the debt.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error deleting debt: {ex.Message}");  // Log the error for debugging
+        }
+    }
+
+    private async Task LoadDebtHistory()
+    {
+        // Get the debt history from the service and update the local list
+        debts = await DebtService.GetDebtsAsync();
+        StateHasChanged(); // Refresh the page to reflect updated data
+    }
+}

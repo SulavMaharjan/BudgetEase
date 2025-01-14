@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BudgetEasee.Models;
-using System.Collections.Generic;
+
 
 namespace BudgetEasee.Data
 {
@@ -15,7 +15,10 @@ namespace BudgetEasee.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
-  
+        public DbSet<Debt> Debts { get; set; }
+
+
 
     }
 }
+

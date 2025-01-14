@@ -1,4 +1,5 @@
-﻿@using BudgetEasee.Models;
+﻿@layout BudgetEase.Components.Layout.EmptyLayout
+@using BudgetEasee.Models;
 @using BudgetEasee.Services;
 @page "/signup"
 @inject UserService UserService
@@ -20,7 +21,7 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>
-    
+    <a href="/">already have an account?Login</a>
 </form>
 
 @code {
