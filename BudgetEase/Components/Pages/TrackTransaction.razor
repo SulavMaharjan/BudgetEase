@@ -1,0 +1,105 @@
+﻿@page "/trackTransaction"
+
+@using BudgetEasee.Models
+@using BudgetEasee.Services
+@inject TransactionService TransactionService
+
+<h3>Track Transactions</h3>
+
+@if (inflowTransactions == null || outflowTransactions == null)
+{
+    <p>Loading transactions...</p>
+}
+else
+{
+    <h4>Inflow (Credit)</h4>
+    @if (inflowTransactions.Count == 0)
+    {
+        <p>No inflow transactions found.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Source</th>
+                    <th>Amount</th>
+                    <th>Tag</th>
+                    <th>Remarks</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var transaction in inflowTransactions)
+                {
+                    <tr>
+                        <td>@transaction.Source</td>
+                        <td>@transaction.Amount</td>
+                        <td>@transaction.Tag</td>
+                        <td>@transaction.Remarks</td>
+                        <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <h4>Outflow (Debit)</h4>
+    @if (outflowTransactions.Count == 0)
+    {
+        <p>No outflow transactions found.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Source</th>
+                    <th>Amount</th>
+                    <th>Tag</th>
+                    <th>Remarks</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var transaction in outflowTransactions)
+                {
+                    <tr>
+                        <td>@transaction.Source</td>
+                        <td>@transaction.Amount</td>
+                        <td>@transaction.Tag</td>
+                        <td>@transaction.Remarks</td>
+                        <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+<button class="btn btn-primary" @onclick="LoadTransactions">Refresh Transactions</button>
+
+@code {
+    private List<BudgetEasee.Models.Transaction> inflowTransactions;
+    private List<BudgetEasee.Models.Transaction> outflowTransactions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTransactions();
+    }
+
+    private async Task LoadTransactions()
+    {
+        var allTransactions = await TransactionService.GetTransactionsAsync();
+
+        inflowTransactions = allTransactions
+            .Where(t => t.TransactionType == TransactionType.Credit)
+            .ToList();
+
+        outflowTransactions = allTransactions
+            .Where(t => t.TransactionType == TransactionType.Debit)
+            .ToList();
+
+        StateHasChanged(); // Refresh the page
+    }
+}
