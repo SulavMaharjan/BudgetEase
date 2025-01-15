@@ -40,6 +40,15 @@ namespace BudgetEasee.Services
             return await _context.Transactions.ToListAsync();
         }
 
+        public async Task<List<string>> GetAvailableTagsAsync()
+        {
+            return await _context.Transactions
+                                 .Select(t => t.Tag)
+                                 .Distinct()
+                                 .ToListAsync();
+        }
+
+
         // Get transactions by type (Debit/Credit)
         public async Task<List<Transaction>> GetTransactionsByTypeAsync(TransactionType transactionType)
         {

@@ -13,7 +13,7 @@
 </div>
 
 @if (transactions == null)
-{ 
+{
     <p>Loading transactions...</p>
 }
 else if (transactions.Count == 0)
@@ -22,6 +22,17 @@ else if (transactions.Count == 0)
 }
 else
 {
+    <div>
+        <input type="text" class="form-control" placeholder="Search by Source or Amount" @bind="searchText" />
+        <select class="form-control" @bind="selectedTag">
+            <option value="">Filter by Tag</option>
+            @foreach (var tag in availableTags)
+            {
+                <option value="@tag">@tag</option>
+            }
+        </select>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -34,7 +45,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var transaction in transactions)
+            @foreach (var transaction in FilteredTransactions)
             {
                 <tr>
                     <td>@transaction.Source</td>
@@ -55,31 +66,52 @@ else
 <button class="btn btn-primary" @onclick="LoadTransactions">Refresh Transactions</button>
 
 @code {
-    private List<BudgetEasee.Models.Transaction> transactions; // Ensure this is the correct type
+    private List<BudgetEasee.Models.Transaction> transactions;
+    private List<BudgetEasee.Models.Transaction> FilteredTransactions => transactions
+        .Where(t => (string.IsNullOrWhiteSpace(searchText) || t.Source.Contains(searchText, StringComparison.OrdinalIgnoreCase) || t.Amount.ToString().Contains(searchText))
+                    && (string.IsNullOrWhiteSpace(selectedTag) || t.Tag == selectedTag))
+        .ToList();
+
+    private string searchText = string.Empty;
+    private string selectedTag = string.Empty;
+    private List<string> availableTags = new List<string>();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadTransactions();
+        await LoadTags(); // Load available tags
     }
 
     private async Task LoadTransactions()
     {
         transactions = await TransactionService.GetTransactionsAsync();
-        StateHasChanged(); // Refresh the page to reflect updated data
+        StateHasChanged();
     }
+
+    private async Task LoadTags()
+    {
+        availableTags = await TransactionService.GetAvailableTagsAsync(); // Add this method to fetch tags
+    }
+
     private async Task DeleteTransaction(int transactionId)
     {
         bool isDeleted = await TransactionService.DeleteTransactionAsync(transactionId);
 
         if (isDeleted)
         {
-            transactions = transactions.Where(t => t.Id != transactionId).ToList(); // Remove deleted transaction from the list
-            StateHasChanged(); // Refresh the page
+            transactions = transactions.Where(t => t.Id != transactionId).ToList();
+            StateHasChanged();
         }
         else
         {
-            // Optionally handle error when transaction is not found or deletion fails
             Console.WriteLine("Error deleting transaction.");
         }
+    }
+
+    private async Task FilterByTag(ChangeEventArgs e)
+    {
+        selectedTag = e.Value?.ToString();
+        FilteredTransactions.Clear(); // Clear and refresh the filtered list
+        await Task.CompletedTask;
     }
 }
