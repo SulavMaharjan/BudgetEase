@@ -45,6 +45,10 @@
                 <p class="card-text text-danger fs-4 fw-bold">@totalRemainingDebts</p>
             </div>
         </div>
+    </div>
+
+    <!-- Bottom 5 Top 5 Transactions -->
+    <div class="row mb-4">
         <div class="col-md-4">
             <div class="card shadow-sm border-light p-3 mb-3 bg-light rounded">
                 <h5 class="card-title text-muted">Top 5 Highest Transactions</h5>
@@ -54,6 +58,21 @@
                         <li class="list-group-item d-flex justify-content-between">
                             <span>@transaction.Source</span>
                             <span class="text-info">@transaction.Amount</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-light p-3 mb-3 bg-light rounded">
+                <h5 class="card-title text-muted">Bottom 5 Lowest Transactions</h5>
+                <ul class="list-group">
+                    @foreach (var transaction in bottom5LowestTransactions)
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>@transaction.Source</span>
+                            <span class="text-danger">@transaction.Amount</span>
                         </li>
                     }
                 </ul>
@@ -107,6 +126,7 @@
     private decimal totalClearedDebts;
     private decimal totalRemainingDebts;
     private List<BudgetEasee.Models.Transaction> top5HighestTransactions = new List<BudgetEasee.Models.Transaction>();
+    private List<BudgetEasee.Models.Transaction> bottom5LowestTransactions = new List<BudgetEasee.Models.Transaction>(); // Added list for bottom transactions
     private List<Debt> pendingDebts = new List<Debt>();
     private DateTime startDate = DateTime.Now.AddMonths(-1);
     private DateTime endDate = DateTime.Now;
@@ -144,6 +164,12 @@
         var transactions = await TransactionService.GetTransactionsAsync();
         top5HighestTransactions = transactions
             .OrderByDescending(t => t.Amount)
+            .Take(5)
+            .ToList();
+
+        // Added logic to fetch bottom 5 lowest transactions
+        bottom5LowestTransactions = transactions
+            .OrderBy(t => t.Amount)
             .Take(5)
             .ToList();
     }
