@@ -1,1 +1,158 @@
 ﻿@page "/dashboard"
+
+@using BudgetEasee.Models
+@using BudgetEasee.Services
+@inject TransactionService TransactionService
+@inject DebtService DebtService
+@inject NavigationManager NavigationManager
+
+<h3 class="text-center mb-4 text-primary">User Dashboard</h3>
+
+<div class="container">
+    <!-- Cash Flow Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-light p-3 mb-3 bg-light rounded">
+                <h5 class="card-title text-muted">Total Cash Inflows</h5>
+                <p class="card-text text-success fs-4 fw-bold">@totalCashInflows</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-light p-3 mb-3 bg-light rounded">
+                <h5 class="card-title text-muted">Total Cash Outflows</h5>
+                <p class="card-text text-danger fs-4 fw-bold">@totalCashOutflows</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-light p-3 mb-3 bg-light rounded">
+                <h5 class="card-title text-muted">Total Debts</h5>
+                <p class="card-text text-warning fs-4 fw-bold">@totalDebts</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debts and Transactions -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-light p-3 mb-3 bg-light rounded">
+                <h5 class="card-title text-muted">Cleared Debts</h5>
+                <p class="card-text text-success fs-4 fw-bold">@totalClearedDebts</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-light p-3 mb-3 bg-light rounded">
+                <h5 class="card-title text-muted">Remaining Debts</h5>
+                <p class="card-text text-danger fs-4 fw-bold">@totalRemainingDebts</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-light p-3 mb-3 bg-light rounded">
+                <h5 class="card-title text-muted">Top 5 Highest Transactions</h5>
+                <ul class="list-group">
+                    @foreach (var transaction in top5HighestTransactions)
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>@transaction.Source</span>
+                            <span class="text-info">@transaction.Amount</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Debts -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-light p-3 mb-3 bg-light rounded">
+                <h5 class="card-title text-muted">Pending Debts</h5>
+                <div class="mb-3">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" id="startDate" @bind="startDate" class="form-control mb-2" />
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" id="endDate" @bind="endDate" class="form-control mb-2" />
+                    <button class="btn btn-primary mt-2" @onclick="LoadPendingDebts">Filter</button>
+                </div>
+
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Source of Debt</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var debt in pendingDebts)
+                        {
+                            <tr>
+                                <td>@debt.Source</td>
+                                <td>@debt.Amount</td>
+                                <td>@debt.DebtDueDate.ToString("yyyy-MM-dd")</td>
+                                <td>@debt.Status</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private decimal totalCashInflows;
+    private decimal totalCashOutflows;
+    private decimal totalDebts;
+    private decimal totalClearedDebts;
+    private decimal totalRemainingDebts;
+    private List<BudgetEasee.Models.Transaction> top5HighestTransactions = new List<BudgetEasee.Models.Transaction>();
+    private List<Debt> pendingDebts = new List<Debt>();
+    private DateTime startDate = DateTime.Now.AddMonths(-1);
+    private DateTime endDate = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardData();
+    }
+
+    private async Task LoadDashboardData()
+    {
+        await LoadCashFlowData();
+        await LoadDebtsData();
+        await LoadTopTransactions();
+        await LoadPendingDebts();
+    }
+
+    private async Task LoadCashFlowData()
+    {
+        var transactions = await TransactionService.GetTransactionsAsync();
+        totalCashInflows = transactions.Where(t => t.TransactionType == TransactionType.Credit).Sum(t => t.Amount);
+        totalCashOutflows = transactions.Where(t => t.TransactionType == TransactionType.Debit).Sum(t => t.Amount);
+    }
+
+    private async Task LoadDebtsData()
+    {
+        var debts = await DebtService.GetDebtsAsync();
+        totalDebts = debts.Sum(d => d.Amount);
+        totalClearedDebts = debts.Where(d => d.Status == "Cleared").Sum(d => d.Amount);
+        totalRemainingDebts = debts.Where(d => d.Status != "Cleared").Sum(d => d.Amount);
+    }
+
+    private async Task LoadTopTransactions()
+    {
+        var transactions = await TransactionService.GetTransactionsAsync();
+        top5HighestTransactions = transactions
+            .OrderByDescending(t => t.Amount)
+            .Take(5)
+            .ToList();
+    }
+
+    private async Task LoadPendingDebts()
+    {
+        var debts = await DebtService.GetDebtsAsync();
+        pendingDebts = debts
+            .Where(d => d.Status != "Cleared" && d.DebtDueDate >= startDate && d.DebtDueDate <= endDate)
+            .ToList();
+    }
+}
