@@ -27,6 +27,7 @@ namespace BudgetEasee.Services
                     Source = source,
                     Amount = amount,
                     DebtDueDate = debtDueDate,
+                    Status = "Pending"  // Default status is set to Pending
                 };
 
                 _context.Debts.Add(debt);
@@ -69,12 +70,35 @@ namespace BudgetEasee.Services
                 await _context.SaveChangesAsync();
 
                 // After deleting, invalidate the in-memory cache and reload data
-                _inMemoryDebts = null; 
+                _inMemoryDebts = null;
                 return true;
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"Error deleting debt: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Update the status of a debt
+        public async Task<bool> UpdateDebtStatusAsync(int debtId, string status)
+        {
+            try
+            {
+                var debt = await _context.Debts.FirstOrDefaultAsync(d => d.Id == debtId);
+                if (debt == null)
+                {
+                    return false; // Debt not found
+                }
+
+                debt.Status = status;
+                _context.Debts.Update(debt);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error updating debt status: {ex.Message}");
                 return false;
             }
         }

@@ -48,6 +48,7 @@ else
                 <th>Source of Debt</th>
                 <th>Amount</th>
                 <th>Due Date</th>
+                <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -58,8 +59,12 @@ else
                     <td>@debt.Source</td>
                     <td>@debt.Amount</td>
                     <td>@debt.DebtDueDate.ToString("yyyy-MM-dd")</td>
+                    <td>@debt.Status</td>
                     <td>
                         <button class="btn btn-danger" @onclick="() => HandleDeleteDebt(debt.Id)">Delete</button>
+                        <button class="btn btn-success" @onclick="() => HandleClearDebt(debt.Id)" disabled="@IsDebtCleared(debt)">
+                            Clear
+                        </button>
                     </td>
                 </tr>
             }
@@ -129,6 +134,32 @@ else
         {
             Console.Error.WriteLine($"Error deleting debt: {ex.Message}");  // Log the error for debugging
         }
+    }
+
+    private async Task HandleClearDebt(int debtId)
+    {
+        try
+        {
+            var success = await DebtService.UpdateDebtStatusAsync(debtId, "Cleared");
+            if (success)
+            {
+                // Reload the debt history after updating the status
+                await LoadDebtHistory();
+            }
+            else
+            {
+                Console.Error.WriteLine("Failed to clear the debt.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error clearing debt: {ex.Message}");
+        }
+    }
+
+    private bool IsDebtCleared(Debt debt)
+    {
+        return debt.Status == "Cleared";
     }
 
     private async Task LoadDebtHistory()
