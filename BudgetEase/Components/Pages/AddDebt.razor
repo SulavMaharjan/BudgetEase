@@ -5,71 +5,83 @@
 @inject DebtService DebtService
 @inject NavigationManager NavigationManager
 
-<h3>Add Debt</h3>
+<h3 class="text-center mb-4 text-primary">Add Debt</h3>
 
 @if (debtFailed)
 {
-    <div class="alert alert-danger" role="alert">
+    <div class="alert alert-danger text-center" role="alert">
         There was an error adding the debt. Please try again.
     </div>
 }
 
-<form @onsubmit="HandleAddDebt">
-    <div class="mb-3">
-        <label class="form-label">Source of Debt</label>
-        <input class="form-control" @bind="Source" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Amount</label>
-        <input type="number" class="form-control" @bind="Amount" step="0.01" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Debt Due Date</label>
-        <input type="date" class="form-control" @bind="DebtDueDate" />
-    </div>
-    <button type="submit" class="btn btn-primary">Add Debt</button>
-</form>
+<div class="card shadow-lg p-4 mb-4">
+    <form @onsubmit="HandleAddDebt" class="mb-4">
+        <div class="mb-3">
+            <label class="form-label">Source of Debt</label>
+            <input class="form-control form-control-lg" @bind="Source" placeholder="Enter the source of debt" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Amount</label>
+            <input type="number" class="form-control form-control-lg" @bind="Amount" step="0.01" placeholder="Enter the amount" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Debt Due Date</label>
+            <input type="date" class="form-control form-control-lg" @bind="DebtDueDate" required />
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg">Add Debt</button>
+        </div>
+    </form>
+</div>
 
-<h4>Debt History</h4>
+<h4 class="text-center text-info">Debt History</h4>
 
 @if (debts == null)
 {
-    <p>Loading debt history...</p>
+    <p class="text-center">Loading debt history...</p>
 }
 else if (debts.Count == 0)
 {
-    <p>No debts found.</p>
+    <p class="text-center">No debts found.</p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Source of Debt</th>
-                <th>Amount</th>
-                <th>Due Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var debt in debts)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="table-light">
                 <tr>
-                    <td>@debt.Source</td>
-                    <td>@debt.Amount</td>
-                    <td>@debt.DebtDueDate.ToString("yyyy-MM-dd")</td>
-                    <td>@debt.Status</td>
-                    <td>
-                        <button class="btn btn-danger" @onclick="() => HandleDeleteDebt(debt.Id)">Delete</button>
-                        <button class="btn btn-success" @onclick="() => HandleClearDebt(debt.Id)" disabled="@IsDebtCleared(debt)">
-                            Clear
-                        </button>
-                    </td>
+                    <th>Source of Debt</th>
+                    <th>Amount</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var debt in debts)
+                {
+                    <tr>
+                        <td>@debt.Source</td>
+                        <td>@debt.Amount</td>
+                        <td>@debt.DebtDueDate.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            <span class="badge @GetDebtStatusBadge(debt.Status)">
+                                @debt.Status
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-sm me-2" @onclick="() => HandleDeleteDebt(debt.Id)">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                            <button class="btn btn-success btn-sm" @onclick="() => HandleClearDebt(debt.Id)" disabled="@IsDebtCleared(debt)">
+                                <i class="bi bi-check"></i> Clear
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {
@@ -167,5 +179,15 @@ else
         // Get the debt history from the service and update the local list
         debts = await DebtService.GetDebtsAsync();
         StateHasChanged(); // Refresh the page to reflect updated data
+    }
+
+    private string GetDebtStatusBadge(string status)
+    {
+        return status switch
+        {
+            "Cleared" => "bg-success text-white",
+            "Pending" => "bg-warning text-dark",
+            _ => "bg-secondary text-white"
+        };
     }
 }

@@ -5,22 +5,37 @@
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 
-<h3>Login</h3>
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow-lg" style="max-width: 400px; width: 100%;">
+        <h3 class="text-center mb-4">Login</h3>
 
+        @if (loginFailed)
+        {
+            <div class="alert alert-danger" role="alert">
+                Invalid username or password. Please try again.
+            </div>
+        }
 
-<form @onsubmit="HandleLogin">
-    <div class="mb-3">
-        <label class="form-label">username</label>
-        <input class="form-control" @bind="Username">
-        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+        <form @onsubmit="HandleLogin">
+            <div class="mb-3">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" class="form-control" id="username" @bind="Username" required />
+                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" class="form-control" id="password" @bind="Password" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+
+            <div class="text-center mt-3">
+                <a href="/signup" class="text-muted">Don't have an account? Sign up</a>
+            </div>
+        </form>
     </div>
-    <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Password</label>
-        <input type="password" class="form-control" id="exampleInputPassword1" @bind="Password">
-    </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-    <a href="/signup">dont have an account?Signup</a>
-</form>
+</div>
 
 @code {
     private string Username { get; set; } = string.Empty;

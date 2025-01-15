@@ -9,7 +9,7 @@ namespace BudgetEasee.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             // Delete and recreate the database during initialization (for development/testing purposes)
-            this.Database.EnsureDeleted(); // Use cautiously, mostly for development or testing
+            //this.Database.EnsureDeleted(); // Use cautiously, mostly for development or testing
             this.Database.EnsureCreated();
         }
 

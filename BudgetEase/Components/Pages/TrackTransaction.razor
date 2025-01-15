@@ -4,80 +4,88 @@
 @using BudgetEasee.Services
 @inject TransactionService TransactionService
 
-<h3>Track Transactions</h3>
+<div class="container mt-5">
+    <h3 class="text-center mb-4 text-primary">Track Transactions</h3>
 
-@if (inflowTransactions == null || outflowTransactions == null)
-{
-    <p>Loading transactions...</p>
-}
-else
-{
-    <h4>Inflow (Credit)</h4>
-    @if (inflowTransactions.Count == 0)
+    @if (inflowTransactions == null || outflowTransactions == null)
     {
-        <p>No inflow transactions found.</p>
+        <p class="text-center text-secondary">Loading transactions...</p>
     }
     else
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Source</th>
-                    <th>Amount</th>
-                    <th>Tag</th>
-                    <th>Remarks</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var transaction in inflowTransactions)
-                {
-                    <tr>
-                        <td>@transaction.Source</td>
-                        <td>@transaction.Amount</td>
-                        <td>@transaction.Tag</td>
-                        <td>@transaction.Remarks</td>
-                        <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="mb-5">
+            <h4 class="text-success">Inflow (Credit)</h4>
+            @if (inflowTransactions.Count == 0)
+            {
+                <p class="text-center text-muted">No inflow transactions found.</p>
+            }
+            else
+            {
+                <table class="table table-hover">
+                    <thead class="bg-success text-white">
+                        <tr>
+                            <th>Source</th>
+                            <th>Amount</th>
+                            <th>Tag</th>
+                            <th>Remarks</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var transaction in inflowTransactions)
+                        {
+                            <tr>
+                                <td>@transaction.Source</td>
+                                <td>@transaction.Amount</td>
+                                <td>@transaction.Tag</td>
+                                <td>@transaction.Remarks</td>
+                                <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="mb-5">
+            <h4 class="text-danger">Outflow (Debit)</h4>
+            @if (outflowTransactions.Count == 0)
+            {
+                <p class="text-center text-muted">No outflow transactions found.</p>
+            }
+            else
+            {
+                <table class="table table-hover">
+                    <thead class="bg-danger text-white">
+                        <tr>
+                            <th>Source</th>
+                            <th>Amount</th>
+                            <th>Tag</th>
+                            <th>Remarks</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var transaction in outflowTransactions)
+                        {
+                            <tr>
+                                <td>@transaction.Source</td>
+                                <td>@transaction.Amount</td>
+                                <td>@transaction.Tag</td>
+                                <td>@transaction.Remarks</td>
+                                <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
     }
 
-    <h4>Outflow (Debit)</h4>
-    @if (outflowTransactions.Count == 0)
-    {
-        <p>No outflow transactions found.</p>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Source</th>
-                    <th>Amount</th>
-                    <th>Tag</th>
-                    <th>Remarks</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var transaction in outflowTransactions)
-                {
-                    <tr>
-                        <td>@transaction.Source</td>
-                        <td>@transaction.Amount</td>
-                        <td>@transaction.Tag</td>
-                        <td>@transaction.Remarks</td>
-                        <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-}
-
-<button class="btn btn-primary" @onclick="LoadTransactions">Refresh Transactions</button>
+    <div class="text-center">
+        <button class="btn btn-outline-primary btn-lg" @onclick="LoadTransactions">Refresh Transactions</button>
+    </div>
+</div>
 
 @code {
     private List<BudgetEasee.Models.Transaction> inflowTransactions;

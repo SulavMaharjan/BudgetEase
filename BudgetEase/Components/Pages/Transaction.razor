@@ -5,49 +5,58 @@
 @inject TransactionService TransactionService
 @inject NavigationManager NavigationManager
 
-<h3>Add Transaction</h3>
-
-@if (transactionFailed)
-{
-    <div class="alert alert-danger" role="alert">
-        There was an error adding the transaction. Please try again.
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="shadow-lg p-4 rounded bg-light">
+                <h3 class="text-center text-primary mb-4">Add Transaction</h3>
+                @if (transactionFailed)
+                {
+                    <div class="alert alert-danger text-center" role="alert">
+                        Something went wrong. Please try again.
+                    </div>
+                }
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="source" class="form-label">Source</label>
+                        <input id="source" type="text" class="form-control" @bind="Source" placeholder="Enter source" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input id="amount" type="number" class="form-control" @bind="Amount" step="0.01" placeholder="Enter amount" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="transactionType" class="form-label">Transaction Type</label>
+                        <select id="transactionType" class="form-select" @bind="TransactionType">
+                            <option value="Debit">Debit</option>
+                            <option value="Credit">Credit</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="tag" class="form-label">Tag</label>
+                        <input id="tag" type="text" class="form-control" @bind="Tag" placeholder="Enter tag" />
+                    </div>
+                    <div class="col-12">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <textarea id="remarks" class="form-control" @bind="Remarks" rows="3" placeholder="Optional remarks"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label for="date" class="form-label">Date</label>
+                        <input id="date" type="date" class="form-control" @bind="Date" />
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <button class="btn btn-success px-4" @onclick="HandleAddTransaction">
+                        <i class="bi bi-check-circle"></i> Add Transaction
+                    </button>
+                    <a href="/transactionHistory" class="btn btn-secondary px-4">
+                        <i class="bi bi-list-ul"></i> View History
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-}
-<div>
-    <button class="btn btn-primary">
-        <a href="/transactionHistory" class="text-light">View Transaction History</a>
-    </button>
 </div>
-<form @onsubmit="HandleAddTransaction">
-    <div class="mb-3">
-        <label class="form-label">Source</label>
-        <input class="form-control" @bind="Source" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Amount</label>
-        <input type="number" class="form-control" @bind="Amount" step="0.01" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Transaction Type</label>
-        <select class="form-control" @bind="TransactionType">
-            <option value="Debit">Debit</option>
-            <option value="Credit">Credit</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Tag</label>
-        <input class="form-control" @bind="Tag" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Remarks</label>
-        <input class="form-control" @bind="Remarks" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Date</label>
-        <input type="date" class="form-control" @bind="Date" />
-    </div>
-    <button type="submit" class="btn btn-primary">Add Transaction</button>
-</form>
 
 @code {
     private string Source { get; set; } = string.Empty;
@@ -71,14 +80,13 @@
             else
             {
                 transactionFailed = false;
-                // Navigate to the transaction history page to reload the transactions
                 NavigationManager.NavigateTo("/transactionHistory");
             }
         }
         catch (Exception ex)
         {
             transactionFailed = true;
-            Console.Error.WriteLine(ex.Message); // Log the exception for debugging
+            Console.Error.WriteLine(ex.Message);
         }
     }
 }

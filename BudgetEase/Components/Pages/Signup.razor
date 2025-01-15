@@ -5,24 +5,37 @@
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow-lg" style="max-width: 400px; width: 100%;">
+        <h3 class="text-center mb-4">Sign Up</h3>
 
-<h3>Signup</h3>
+        @if (signupFailed)
+        {
+            <div class="alert alert-danger" role="alert">
+                Username already exists or there was an issue with your registration.
+            </div>
+        }
 
+        <form @onsubmit="HandleSignup">
+            <div class="mb-3">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" class="form-control" id="username" @bind="user.Username" required />
+                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+            </div>
 
-<form @onsubmit="HandleSignup">
-    <div class="mb-3">
-        <label class="form-label">username</label>
-        <input class="form-control" @bind="user.Username">
-        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+            <div class="mb-3">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" class="form-control" id="password" @bind="user.PasswordHash" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+
+            <div class="text-center mt-3">
+                <a href="/" class="text-muted">Already have an account? Log in</a>
+            </div>
+        </form>
     </div>
-    <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Password</label>
-        <input type="password" class="form-control" id="exampleInputPassword1" @bind="user.PasswordHash">
-    </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-    <a href="/">already have an account?Login</a>
-</form>
+</div>
 
 @code {
     private User user = new User();
@@ -38,7 +51,7 @@
         else
         {
             signupFailed = false;
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/"); // Redirect to login page
         }
     }
 }

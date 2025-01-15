@@ -5,26 +5,27 @@
 @inject TransactionService TransactionService
 @inject NavigationManager NavigationManager
 
-<h3>Transaction History</h3>
-<div>
-    <button class="btn btn-primary">
-        <a href="/transaction" class="text-light">Add Transaction </a>
+<h3 class="text-center mb-4 text-primary">Transaction History</h3>
+
+<div class="mb-3 text-center">
+    <button class="btn btn-success">
+        <a href="/transaction" class="text-light text-decoration-none">Add Transaction</a>
     </button>
 </div>
 
 @if (transactions == null)
 {
-    <p>Loading transactions...</p>
+    <p class="text-center text-info">Loading transactions...</p>
 }
 else if (transactions.Count == 0)
 {
-    <p>No transactions found.</p>
+    <p class="text-center text-warning">No transactions found.</p>
 }
 else
 {
-    <div>
-        <input type="text" class="form-control" placeholder="Search by Source or Amount" @bind="searchText" />
-        <select class="form-control" @bind="selectedTag">
+    <div class="mb-4 d-flex justify-content-between">
+        <input type="text" class="form-control w-50" placeholder="Search by Source or Amount" @bind="searchText" />
+        <select class="form-select w-25" @bind="selectedTag">
             <option value="">Filter by Tag</option>
             @foreach (var tag in availableTags)
             {
@@ -33,24 +34,25 @@ else
         </select>
     </div>
 
-    <table class="table">
-        <thead>
-            <tr>
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-light">
+            <tr class="text-primary">
                 <th>Source</th>
                 <th>Amount</th>
                 <th>Transaction Type</th>
                 <th>Tag</th>
                 <th>Remarks</th>
                 <th>Date</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var transaction in FilteredTransactions)
             {
-                <tr>
+                <tr class="table-row">
                     <td>@transaction.Source</td>
-                    <td>@transaction.Amount</td>
-                    <td>@transaction.TransactionType</td>
+                    <td class="text-success">@transaction.Amount</td>
+                    <td class="@GetTransactionTypeClass(transaction.TransactionType)">@transaction.TransactionType</td>
                     <td>@transaction.Tag</td>
                     <td>@transaction.Remarks</td>
                     <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
@@ -63,7 +65,9 @@ else
     </table>
 }
 
-<button class="btn btn-primary" @onclick="LoadTransactions">Refresh Transactions</button>
+<div class="text-center">
+    <button class="btn btn-primary" @onclick="LoadTransactions">Refresh Transactions</button>
+</div>
 
 @code {
     private List<BudgetEasee.Models.Transaction> transactions;
@@ -113,5 +117,10 @@ else
         selectedTag = e.Value?.ToString();
         FilteredTransactions.Clear(); // Clear and refresh the filtered list
         await Task.CompletedTask;
+    }
+
+    private string GetTransactionTypeClass(TransactionType transactionType)
+    {
+        return transactionType == TransactionType.Credit ? "text-success" : "text-danger";
     }
 }
