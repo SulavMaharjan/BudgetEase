@@ -13,6 +13,9 @@ namespace BudgetEasee.Models
         [Required]
         public string PasswordHash { get; set; }
 
+        [Required]
+        public string PreferredCurrency { get; set; }
+
 
     }
 }

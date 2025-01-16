@@ -4,7 +4,6 @@ using BudgetEasee.Models;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace BudgetEasee.Services
 {
@@ -17,7 +16,7 @@ namespace BudgetEasee.Services
             _context = context;
         }
 
-        public async Task<bool> RegisterUserAsync(string username, string password)
+        public async Task<bool> RegisterUserAsync(string username, string password, string preferredCurrency)
         {
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
             if (existingUser != null)
@@ -26,21 +25,21 @@ namespace BudgetEasee.Services
             }
 
             var passwordHash = HashPassword(password);
-            var user = new User { Username = username, PasswordHash = passwordHash };
+            var user = new User { Username = username, PasswordHash = passwordHash, PreferredCurrency = preferredCurrency };
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> LoginUserAsync(string username, string password)
+        public async Task<User> LoginUserAsync(string username, string password)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
             if (user != null && VerifyPassword(password, user.PasswordHash))
             {
-                return true; // Login successful
+                return user; // Return the user object upon successful login
             }
 
-            return false; // Login failed
+            return null; // Login failed
         }
 
         private string HashPassword(string password)

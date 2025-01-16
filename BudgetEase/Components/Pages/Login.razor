@@ -20,7 +20,6 @@
             <div class="mb-3">
                 <label class="form-label" for="username">Username</label>
                 <input type="text" class="form-control" id="username" @bind="Username" required />
-                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
             </div>
 
             <div class="mb-3">
@@ -44,15 +43,18 @@
 
     private async Task HandleLogin()
     {
-        var success = await UserService.LoginUserAsync(Username, Password);
-        if (!success)
+        var user = await UserService.LoginUserAsync(Username, Password);
+        if (user == null)
         {
             loginFailed = true;
         }
         else
         {
             loginFailed = false;
-            NavigationManager.NavigateTo("/dashboard"); // Redirect to home page
+            // Store or use the preferred currency
+            var preferredCurrency = user.PreferredCurrency;
+            // Redirect to home page or dashboard
+            NavigationManager.NavigateTo("/dashboard");
         }
     }
 }

@@ -1,7 +1,7 @@
-﻿@layout BudgetEase.Components.Layout.EmptyLayout
+﻿@page "/signup"
+@layout BudgetEase.Components.Layout.EmptyLayout
 @using BudgetEasee.Models;
 @using BudgetEasee.Services;
-@page "/signup"
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 
@@ -20,12 +20,22 @@
             <div class="mb-3">
                 <label class="form-label" for="username">Username</label>
                 <input type="text" class="form-control" id="username" @bind="user.Username" required />
-                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label" for="password">Password</label>
                 <input type="password" class="form-control" id="password" @bind="user.PasswordHash" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="currency">Preferred Currency</label>
+                <select class="form-select" id="currency" @bind="user.PreferredCurrency" required>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="INR">INR</option>
+                    <option value="NPR">NPR</option>
+                </select>
             </div>
 
             <button type="submit" class="btn btn-primary w-100">Sign Up</button>
@@ -43,7 +53,7 @@
 
     private async Task HandleSignup()
     {
-        var success = await UserService.RegisterUserAsync(user.Username, user.PasswordHash);
+        var success = await UserService.RegisterUserAsync(user.Username, user.PasswordHash, user.PreferredCurrency);
         if (!success)
         {
             signupFailed = true;
